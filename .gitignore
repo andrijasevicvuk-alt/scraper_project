@@ -1,0 +1,63 @@
+Secrets
+
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+Python
+
+pycache/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.venv/
+venv/
+
+Runtime databases
+
+*.db
+.db-
+*.sqlite
+*.sqlite3
+.sqlite-
+.sqlite3-
+
+Scraper runtime data
+
+/runtime/
+/snapshots/
+/checkpoints/
+/logs/
+/exports/
+/backups/
+/browser-data/
+/session-data/
+/cookies/
+
+Temporary files
+
+*.tmp
+*.temp
+*.log
+*.zip
+
+IDE and OS
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+Keep committed fixtures
+
+!tests/fixtures/
+!tests/fixtures/**
