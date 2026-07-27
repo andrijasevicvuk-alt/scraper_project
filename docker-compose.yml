@@ -11,7 +11,7 @@ services:
       - scraper-runtime:/app/runtime
     mem_limit: 256m
     cpus: 0.50
-    command: ["scraper", "health"]
+    command: ["python", "-m", "cli.main", "health"]
 
 volumes:
   scraper-runtime:

@@ -61,7 +61,7 @@ PYTHONPATH=src python -m cli.main contract validate --contract DetailFetchJob --
 
 Development container
 
-`docker compose run --rm scraper` runs the placeholder health check as a non-root user. The compose file publishes no ports, has a persistent runtime volume and is read-only apart from that volume and temporary files. It does not include any protected acquisition implementation.
+`docker compose run --rm scraper` runs the placeholder health check as a non-root user. The image pre-creates `/app/runtime` for the `scraper` user; the compose file mounts it as a persistent runtime volume and is read-only apart from that volume and temporary files. It does not include any protected acquisition implementation.
 Runtime data
 
 Runtime databases, snapshots, checkpoints, logs, browser profiles, cookies, exports and secrets must never be committed.

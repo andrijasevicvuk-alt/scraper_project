@@ -1,9 +1,31 @@
+# Secrets and local credentials.
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+browser-data/
+
+# Python tooling.
 .venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .coverage
+
+# Build output and temporary files.
+build/
+dist/
+*.tmp
+*.log
+
+# IDE and operating-system metadata.
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+Desktop.ini
 
 # Runtime state must stay outside Git.
 runtime/
