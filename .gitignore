@@ -1,63 +1,41 @@
-Secrets
-
+# Secrets and local credentials.
 .env
 .env.*
 !.env.example
 *.pem
 *.key
+browser-data/
 
-Python
-
-pycache/
-*.py[cod]
-*.pyo
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-dist/
-build/
-*.egg-info/
+# Python tooling.
 .venv/
-venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
 
-Runtime databases
-
-*.db
-.db-
-*.sqlite
-*.sqlite3
-.sqlite-
-.sqlite3-
-
-Scraper runtime data
-
-/runtime/
-/snapshots/
-/checkpoints/
-/logs/
-/exports/
-/backups/
-/browser-data/
-/session-data/
-/cookies/
-
-Temporary files
-
+# Build output and temporary files.
+build/
+dist/
 *.tmp
-*.temp
 *.log
-*.zip
 
-IDE and OS
-
-.vscode/
+# IDE and operating-system metadata.
 .idea/
+.vscode/
+*.swp
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-Keep committed fixtures
-
-!tests/fixtures/
-!tests/fixtures/**
+# Runtime state must stay outside Git.
+runtime/
+cache.db
+*.sqlite
+*.sqlite3
+checkpoints/
+snapshots/
+logs/
+exports/
+backups/
+cookies/
+session-data/

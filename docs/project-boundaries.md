@@ -31,6 +31,8 @@ Codex must not edit, replace, move, rename or recreate the responsibilities of t
 
 Protected implementations communicate with the rest of the system only through shared contracts.
 
+The protected directories are reserved for Gemini and Antigravity. Codex does not create placeholder files or directories within them: their absence is intentional until their owners add approved implementations.
+
 Codex-owned source-neutral areas
 
 Codex may work in:
@@ -84,3 +86,7 @@ Every discovered listing reaches a known terminal state.
 No source failure may block another source.
 Alternatives never replace approved components without Vuk’s approval.
 Secrets and runtime data never enter Git.
+
+Foundation status
+
+The initial source-neutral foundation provides typed contracts, a local source-registry configuration boundary, safe logging, a placeholder-safe CLI and Docker development scaffold. It does not implement live acquisition, protected adapters, queues, retries, parsers, Genesis, routine scraping, canonical YPI mapping, cross-source deduplication, eligibility or valuation logic.

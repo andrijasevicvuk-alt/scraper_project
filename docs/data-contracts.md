@@ -164,3 +164,11 @@ Compatibility
 Consumers must reject unsupported major contract versions.
 
 Additive optional fields may be introduced within the same compatible version. Removing or changing required fields requires a new major version.
+
+Initial implementation notes
+
+The v0.1 source-neutral foundation represents these contracts as immutable, typed Python models in `src/contracts`. Contract timestamps are timezone-aware UTC values in memory and UTC ISO-8601 strings at JSON boundaries. A contract payload may contain `null` for unknown source values where the field is present but the source did not provide a value.
+
+`DetailFetchJob.reason_code` accepts only the approved reason codes above. `RawFetchArtifact` with `artifact_status = SUCCESS` requires both `snapshot_path` and a lowercase SHA-256 `content_hash`; it records an immutable completed snapshot and is never an instruction to overwrite one. `DatasetBatchManifest.record_count` must equal the sum of its recognised terminal-state counts.
+
+The source-neutral contracts intentionally contain no canonical YPI mapping, valuation decision, credential, cookie, token or proxy secret. The JSON boundary rejects unsupported major versions and common credential-shaped keys in extensible metadata and evidence mappings.
