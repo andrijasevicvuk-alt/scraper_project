@@ -1,0 +1,17 @@
+services:
+  scraper:
+    build: .
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    environment:
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - scraper-runtime:/app/runtime
+    mem_limit: 256m
+    cpus: 0.50
+    command: ["scraper", "health"]
+
+volumes:
+  scraper-runtime:

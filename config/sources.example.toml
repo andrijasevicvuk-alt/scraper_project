@@ -1,0 +1,8 @@
+# Example only. It deliberately contains no live endpoint or target-source data.
+registry_version = "0.1"
+
+[[sources]]
+name = "example_source"
+enabled = false
+identity_strategy = "stable_source_key"
+identity_notes = "Placeholder; no acquisition is configured."

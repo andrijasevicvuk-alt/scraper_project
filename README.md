@@ -46,6 +46,22 @@ Read docs/data-contracts.md.
 Implement only the source-neutral contracts and project scaffold.
 Use fixtures or synthetic data only.
 Run tests before proposing the next step.
+
+Foundation commands
+
+The current commands are local and perform no source acquisition:
+
+```text
+PYTHONPATH=src python -m cli.main health
+PYTHONPATH=src python -m cli.main source list
+PYTHONPATH=src python -m cli.main contract validate --contract DetailFetchJob --input payload.json
+```
+
+`config/sources.example.toml` is an inert configuration example. Copy it locally only when a source registry is ready; it contains no target source endpoint and does not enable acquisition.
+
+Development container
+
+`docker compose run --rm scraper` runs the placeholder health check as a non-root user. The compose file publishes no ports, has a persistent runtime volume and is read-only apart from that volume and temporary files. It does not include any protected acquisition implementation.
 Runtime data
 
 Runtime databases, snapshots, checkpoints, logs, browser profiles, cookies, exports and secrets must never be committed.
