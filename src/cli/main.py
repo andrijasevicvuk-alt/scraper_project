@@ -64,6 +64,7 @@ def _runtime_fixture_crawl(args: argparse.Namespace) -> int:
     now = datetime.now(UTC)
     repositories.sources.upsert(source_name, False, "stable_source_key", "Synthetic local fixture only.")
     repositories.crawls.create_run(crawl_run_id, source_name)
+    repositories.crawls.start(crawl_run_id)
     repositories.crawls.create_partition(partition_id, crawl_run_id, source_name, "fixture-page-1")
     repositories.observations.append(
         DiscoveryObservation(
