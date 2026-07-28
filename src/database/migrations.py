@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from hashlib import sha256
-from pathlib import Path
+from importlib.resources import files
+from importlib.resources.abc import Traversable
 
 from .connection import RuntimeDatabase
 
@@ -12,8 +13,9 @@ class MigrationError(RuntimeError):
     """Raised when a migration is missing or its recorded contents differ."""
 
 
-def migration_directory() -> Path:
-    return Path(__file__).resolve().parents[2] / "migrations"
+def migration_directory() -> Traversable:
+    """Return the packaged canonical migration resource directory."""
+    return files("database").joinpath("migrations")
 
 
 def apply_migrations(database: RuntimeDatabase) -> None:
@@ -23,7 +25,11 @@ def apply_migrations(database: RuntimeDatabase) -> None:
             "CREATE TABLE IF NOT EXISTS schema_migrations "
             "(version TEXT PRIMARY KEY, checksum TEXT NOT NULL, applied_at TEXT NOT NULL)"
         )
-    for path in sorted(migration_directory().glob("[0-9][0-9][0-9][0-9]_*.sql")):
+    paths = sorted(
+        (path for path in migration_directory().iterdir() if path.is_file() and path.name[:4].isdigit() and path.name.endswith(".sql")),
+        key=lambda path: path.name,
+    )
+    for path in paths:
         version = path.name.split("_", 1)[0]
         sql = path.read_text(encoding="utf-8")
         checksum = sha256(sql.encode("utf-8")).hexdigest()

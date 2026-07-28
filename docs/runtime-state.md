@@ -6,9 +6,11 @@ The local runtime database is a source-neutral operational store. It records sou
 
 ## Migration and writer policy
 
-`migrations/0001_runtime_schema.sql` is the initial versioned schema. Each applied migration is recorded with a SHA-256 checksum in `schema_migrations`; changing an applied migration fails safely.
+`src/database/migrations/` is the canonical packaged source for versioned SQL migrations. Each applied migration is recorded with a SHA-256 checksum in `schema_migrations`; changing an applied migration fails safely. The same package resources are used by editable/source installs, wheel installs, and the Docker image.
 
 SQLite connections enable WAL mode, foreign keys, full synchronous writes, and a busy timeout. `RuntimeDatabase.write_transaction()` is the one in-process writer boundary and uses `BEGIN IMMEDIATE`; SQLite serializes external processes. Queue leasing and retry transitions are implemented only by `DetailFetchQueue`.
+
+The queue-owner registration is a database singleton. Once `source_neutral_orchestrator` registers, database triggers reject a second, modified, or deleted registration.
 
 ## Detail job state transitions
 
@@ -20,6 +22,12 @@ pending --lease--> processing --success--> succeeded
 ```
 
 Each lease records an attempt before a worker receives the job. Expired processing leases are classified as abandoned; they are requeued only while `attempt_count < max_attempts`. Job creation is idempotent by `(crawl_run_id, source_name, source_listing_key, reason_code)`.
+
+## Crawl and parser lifecycle
+
+Crawl runs move from `created` to `running`, then to `completed` or `failed`. Partitions move from `pending` to `processing`, then to `completed` or `failed`. Parser runs move from `running` to `completed` or `failed`. Repository methods reject transitions from any other state and retain timestamps and failure reasons for retrieval after a restart.
+
+Dataset-batch manifests are stored and rehydrated as complete `DatasetBatchManifest` values, including contract version, terminal-state counts, acquisition and parser versions, checksums, proxy byte usage, and known limitations. The database rejects duplicate manifest checksums. Proxy-ledger rows are append-only operational measurements; aggregation is by source and proxy-pool label.
 
 ## Recovery and backups
 

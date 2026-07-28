@@ -10,6 +10,7 @@ from typing import Any
 from uuid import uuid4
 
 from contracts.models import DatasetBatchManifest, DetailFetchJob, DiscoveryObservation, RawFetchArtifact
+from contracts.validation import parse_utc_timestamp
 
 from .connection import RuntimeDatabase
 from .migrations import apply_migrations
@@ -35,6 +36,10 @@ class JobLease:
     lease_expires_at: str
 
 
+class RepositoryStateError(RuntimeError):
+    """Raised when a durable lifecycle transition is not valid from its current state."""
+
+
 class SourceRegistryRepository:
     def __init__(self, database: RuntimeDatabase) -> None:
         self.database = database
@@ -58,10 +63,41 @@ class CrawlRepository:
     def create_run(self, crawl_run_id: str, source_name: str, run_kind: str = "fixture") -> None:
         with self.database.write_transaction() as connection:
             connection.execute(
-                "INSERT INTO crawl_runs(crawl_run_id, source_name, run_kind, state, started_at, created_at) "
-                "VALUES (?, ?, ?, 'running', ?, ?)",
-                (crawl_run_id, source_name, run_kind, _timestamp(), _timestamp()),
+                "INSERT INTO crawl_runs(crawl_run_id, source_name, run_kind, state, created_at) "
+                "VALUES (?, ?, ?, 'created', ?)",
+                (crawl_run_id, source_name, run_kind, _timestamp()),
             )
+
+    def start(self, crawl_run_id: str) -> None:
+        self._transition_run(crawl_run_id, "created", "running", set_started=True)
+
+    def complete(self, crawl_run_id: str) -> None:
+        self._transition_run(crawl_run_id, "running", "completed", set_finished=True)
+
+    def fail(self, crawl_run_id: str) -> None:
+        self._transition_run(crawl_run_id, "running", "failed", set_finished=True)
+
+    def get_run(self, crawl_run_id: str) -> dict[str, Any] | None:
+        with self.database.read_connection() as connection:
+            row = connection.execute("SELECT * FROM crawl_runs WHERE crawl_run_id=?", (crawl_run_id,)).fetchone()
+        return None if row is None else dict(row)
+
+    def _transition_run(self, crawl_run_id: str, expected: str, target: str, *, set_started: bool = False, set_finished: bool = False) -> None:
+        assignments = ["state=?"]
+        values: list[Any] = [target]
+        if set_started:
+            assignments.append("started_at=?")
+            values.append(_timestamp())
+        if set_finished:
+            assignments.append("finished_at=?")
+            values.append(_timestamp())
+        values.extend([crawl_run_id, expected])
+        with self.database.write_transaction() as connection:
+            result = connection.execute(
+                f"UPDATE crawl_runs SET {', '.join(assignments)} WHERE crawl_run_id=? AND state=?", values
+            )
+        if result.rowcount != 1:
+            raise RepositoryStateError(f"crawl run {crawl_run_id} cannot transition from {expected} to {target}")
 
     def create_partition(self, partition_id: str, crawl_run_id: str, source_name: str, partition_key: str) -> None:
         with self.database.write_transaction() as connection:
@@ -70,6 +106,29 @@ class CrawlRepository:
                 "VALUES (?, ?, ?, ?, 'pending', ?, ?)",
                 (partition_id, crawl_run_id, source_name, partition_key, _timestamp(), _timestamp()),
             )
+
+    def start_partition(self, partition_id: str) -> None:
+        self._transition_partition(partition_id, "pending", "processing")
+
+    def complete_partition(self, partition_id: str) -> None:
+        self._transition_partition(partition_id, "processing", "completed")
+
+    def fail_partition(self, partition_id: str) -> None:
+        self._transition_partition(partition_id, "processing", "failed")
+
+    def get_partition(self, partition_id: str) -> dict[str, Any] | None:
+        with self.database.read_connection() as connection:
+            row = connection.execute("SELECT * FROM crawl_partitions WHERE partition_id=?", (partition_id,)).fetchone()
+        return None if row is None else dict(row)
+
+    def _transition_partition(self, partition_id: str, expected: str, target: str) -> None:
+        with self.database.write_transaction() as connection:
+            result = connection.execute(
+                "UPDATE crawl_partitions SET state=?, updated_at=? WHERE partition_id=? AND state=?",
+                (target, _timestamp(), partition_id, expected),
+            )
+        if result.rowcount != 1:
+            raise RepositoryStateError(f"crawl partition {partition_id} cannot transition from {expected} to {target}")
 
 
 class ObservationRepository:
@@ -195,12 +254,37 @@ class ParserRunRepository:
             )
         return parser_run_id
 
+    def complete(self, parser_run_id: str) -> None:
+        self._transition(parser_run_id, "completed", None)
+
+    def fail(self, parser_run_id: str, failure_reason: str) -> None:
+        if not failure_reason:
+            raise ValueError("failure_reason must be non-empty")
+        self._transition(parser_run_id, "failed", failure_reason)
+
+    def get(self, parser_run_id: str) -> dict[str, Any] | None:
+        with self.database.read_connection() as connection:
+            row = connection.execute("SELECT * FROM parser_runs WHERE parser_run_id=?", (parser_run_id,)).fetchone()
+        return None if row is None else dict(row)
+
+    def _transition(self, parser_run_id: str, target: str, failure_reason: str | None) -> None:
+        with self.database.write_transaction() as connection:
+            result = connection.execute(
+                "UPDATE parser_runs SET state=?, finished_at=?, failure_reason=? WHERE parser_run_id=? AND state='running'",
+                (target, _timestamp(), failure_reason, parser_run_id),
+            )
+        if result.rowcount != 1:
+            raise RepositoryStateError(f"parser run {parser_run_id} is not running")
+
 
 class ProxyUsageRepository:
     def __init__(self, database: RuntimeDatabase) -> None:
         self.database = database
 
     def append(self, crawl_run_id: str, source_name: str, proxy_pool_label: str, bytes_sent: int, bytes_received: int, job_id: str | None = None) -> str:
+        for value, field_name in ((bytes_sent, "bytes_sent"), (bytes_received, "bytes_received")):
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise ValueError(f"{field_name} must be a non-negative integer")
         ledger_id = str(uuid4())
         with self.database.write_transaction() as connection:
             connection.execute(
@@ -224,16 +308,59 @@ class DatasetBatchRepository:
         self.database = database
 
     def record(self, manifest: DatasetBatchManifest) -> None:
+        payload = {
+            "contract_version": manifest.contract_version,
+            "batch_id": manifest.batch_id,
+            "batch_version": manifest.batch_version,
+            "source_name": manifest.source_name,
+            "created_at": _timestamp(manifest.created_at),
+            "snapshot_date": manifest.snapshot_date,
+            "record_count": manifest.record_count,
+            "terminal_state_counts": dict(manifest.terminal_state_counts),
+            "acquisition_versions": list(manifest.acquisition_versions),
+            "parser_versions": list(manifest.parser_versions),
+            "records_path": manifest.records_path,
+            "records_checksum": manifest.records_checksum,
+            "manifest_checksum": manifest.manifest_checksum,
+            "proxy_bytes_used": manifest.proxy_bytes_used,
+            "known_limitations": list(manifest.known_limitations),
+        }
         with self.database.write_transaction() as connection:
             connection.execute(
                 "INSERT INTO dataset_batch_manifests(batch_id, source_name, batch_version, created_at, manifest_json, manifest_checksum) "
                 "VALUES (?, ?, ?, ?, ?, ?)",
                 (
                     manifest.batch_id, manifest.source_name, manifest.batch_version, _timestamp(manifest.created_at),
-                    json.dumps({"record_count": manifest.record_count, "records_path": manifest.records_path}, sort_keys=True),
+                    json.dumps(payload, sort_keys=True),
                     manifest.manifest_checksum,
                 ),
             )
+
+    def get(self, batch_id: str) -> DatasetBatchManifest | None:
+        with self.database.read_connection() as connection:
+            row = connection.execute(
+                "SELECT manifest_json FROM dataset_batch_manifests WHERE batch_id=?", (batch_id,)
+            ).fetchone()
+        if row is None:
+            return None
+        payload = json.loads(str(row["manifest_json"]))
+        required = {
+            "contract_version", "batch_id", "batch_version", "source_name", "created_at", "snapshot_date",
+            "record_count", "terminal_state_counts", "acquisition_versions", "parser_versions", "records_path",
+            "records_checksum", "manifest_checksum", "proxy_bytes_used", "known_limitations",
+        }
+        if not required.issubset(payload):
+            raise RepositoryStateError("dataset batch manifest was stored by an unsupported partial implementation")
+        return DatasetBatchManifest(
+            contract_version=payload["contract_version"], batch_id=payload["batch_id"],
+            batch_version=payload["batch_version"], source_name=payload["source_name"],
+            created_at=parse_utc_timestamp(payload["created_at"], "created_at"), snapshot_date=payload["snapshot_date"],
+            record_count=payload["record_count"], terminal_state_counts=payload["terminal_state_counts"],
+            acquisition_versions=tuple(payload["acquisition_versions"]), parser_versions=tuple(payload["parser_versions"]),
+            records_path=payload["records_path"], records_checksum=payload["records_checksum"],
+            manifest_checksum=payload["manifest_checksum"], proxy_bytes_used=payload["proxy_bytes_used"],
+            known_limitations=tuple(payload["known_limitations"]),
+        )
 
 
 class RuntimeRepositories:
