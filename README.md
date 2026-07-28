@@ -62,6 +62,10 @@ PYTHONPATH=src python -m cli.main contract validate --contract DetailFetchJob --
 Development container
 
 `docker compose run --rm scraper` runs the placeholder health check as a non-root user. The image pre-creates `/app/runtime` for the `scraper` user; the compose file mounts it as a persistent runtime volume and is read-only apart from that volume and temporary files. It does not include any protected acquisition implementation.
+
+Runtime persistence
+
+The local SQLite runtime store uses versioned migrations, WAL mode and one source-neutral writer boundary. See `docs/runtime-state.md` for job-state transitions, recovery, backups and the local-only runtime commands.
 Runtime data
 
 Runtime databases, snapshots, checkpoints, logs, browser profiles, cookies, exports and secrets must never be committed.
