@@ -6,7 +6,7 @@ The local runtime database is a source-neutral operational store. It records sou
 
 ## Migration and writer policy
 
-`migrations/0001_runtime_schema.sql` is the initial versioned schema. Each applied migration is recorded with a SHA-256 checksum in `schema_migrations`; changing an applied migration fails safely.
+`src/database/migrations/` is the canonical packaged source for versioned SQL migrations. Each applied migration is recorded with a SHA-256 checksum in `schema_migrations`; changing an applied migration fails safely. The same package resources are used by editable/source installs, wheel installs, and the Docker image.
 
 SQLite connections enable WAL mode, foreign keys, full synchronous writes, and a busy timeout. `RuntimeDatabase.write_transaction()` is the one in-process writer boundary and uses `BEGIN IMMEDIATE`; SQLite serializes external processes. Queue leasing and retry transitions are implemented only by `DetailFetchQueue`.
 

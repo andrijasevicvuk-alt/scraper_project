@@ -65,7 +65,7 @@ Development container
 
 Runtime persistence
 
-The local SQLite runtime store uses versioned migrations, WAL mode and one source-neutral writer boundary. See `docs/runtime-state.md` for job-state transitions, recovery, backups and the local-only runtime commands.
+The local SQLite runtime store uses packaged versioned migrations, WAL mode and one source-neutral writer boundary. See `docs/runtime-state.md` for job-state transitions, recovery, backups and the local-only runtime commands.
 
 Continuous integration runs the full synthetic test suite on Python 3.11. It contains no live target-source acquisition step.
 Runtime data
