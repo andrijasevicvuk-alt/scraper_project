@@ -375,7 +375,7 @@ Codex tests must use:
 * a local synthetic HTTP server;
 * explicitly authorized mock endpoints.
 
-Gemini and Antigravity live acquisition work remains inside protected paths and approved pilot limits.
+Gemini-authored live acquisition work remains inside protected paths and Vuk-approved pilot limits.
 
 A live pilot or Genesis run requires Vuk’s explicit approval.
 
@@ -481,7 +481,7 @@ Before editing, every agent must:
 2. read relevant documentation;
 3. inspect the current tree;
 4. list intended file changes;
-5. confirm no protected path is included;
+5. identify whether protected paths are included and confirm that the assigned owner and Vuk have authorized them;
 6. identify tests that will be run.
 
 Implementation work should use:

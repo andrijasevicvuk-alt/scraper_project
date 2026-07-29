@@ -35,17 +35,7 @@ Gemini-authored acquisition paths are protected. Gemini does not commit directly
 
 Current phase
 
-The current phase is the source-neutral foundation.
-
-No live source adapter, Genesis scrape or production schedule should be implemented yet.
-
-First implementation
-Read AGENTS.md.
-Read docs/project-boundaries.md.
-Read docs/data-contracts.md.
-Implement only the source-neutral contracts and project scaffold.
-Use fixtures or synthetic data only.
-Run tests before proposing the next step.
+Steps 1–2 complete, Step 3 next
 
 Foundation commands
 

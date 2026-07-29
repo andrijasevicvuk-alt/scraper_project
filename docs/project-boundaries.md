@@ -27,7 +27,7 @@ docker/protected/**
 config/protected/**
 tests/protected_acquisition/**
 
-Codex must not edit, replace, move, rename or recreate the responsibilities of these paths.
+Codex must not silently edit, replace, move, rename or recreate the responsibilities of these paths. A narrow integration correction requires Vuk’s explicit approval.
 
 Protected implementations communicate with the rest of the system only through shared contracts.
 
