@@ -27,11 +27,11 @@ source registry
 Ownership
 Vuk: product owner and merge approval
 ChatGPT: architecture, integration and documentation
-Gemini: source-specific acquisition design
-Antigravity: protected acquisition implementation and execution
+Gemini: source-specific acquisition research, design and proposed code
+Vuk: manually applies, commits and approves Gemini-authored acquisition code
 Codex: source-neutral infrastructure, offline parsers, tests and exports
 
-Gemini and Antigravity acquisition paths are protected and must not be silently replaced.
+Gemini-authored acquisition paths are protected. Gemini does not commit directly; Vuk controls application and merging, while ChatGPT and Codex review integration.
 
 Current phase
 
