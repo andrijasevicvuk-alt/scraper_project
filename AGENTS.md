@@ -106,46 +106,49 @@ ChatGPT must review protected acquisition through its outputs and contracts, not
 
 ### Gemini
 
-Gemini owns source-specific protected acquisition design.
+Gemini owns source-specific protected acquisition research, design and proposed code.
 
-Gemini may define:
+Gemini may:
 
-* discovery strategies;
-* source identity rules;
-* list-level observations;
-* detail-fetch requirements;
-* source-specific acquisition modes;
-* acquisition errors;
-* source health signals;
-* protected adapter specifications.
+* research approved sources;
+* define discovery strategies;
+* define source identity rules;
+* define list-level observations;
+* define detail-fetch requirements;
+* select source-specific acquisition modes;
+* define acquisition errors and health signals;
+* produce complete protected adapter code;
+* produce protected acquisition tests;
+* produce fixture-selection plans;
+* produce telemetry and pilot runbooks.
 
-Gemini must not change:
+Gemini returns code as complete files or patches.
 
-* source-neutral orchestration;
-* offline parsers;
-* YPI canonical mapping;
-* cross-source dedupe;
-* final eligibility;
-* scoring;
-* web application logic.
+Gemini must not:
+
+* commit;
+* push;
+* create or merge pull requests;
+* modify source-neutral orchestration;
+* modify offline parsers;
+* modify YPI canonical mapping;
+* modify final cross-source dedupe;
+* modify final eligibility;
+* modify scoring;
+* modify web application logic;
+* claim tests passed without actual test evidence.
+
+Vuk controls the application, commit and merge of Gemini-authored code.
+
+ChatGPT reviews architecture and boundaries.
+
+Codex may make Vuk-approved minor integration fixes, but must not independently redesign source-specific acquisition behavior.
 
 ### Antigravity
 
-Antigravity owns protected acquisition implementation and controlled live execution.
+Antigravity is not part of the current project workflow.
 
-Antigravity may modify only approved protected acquisition paths and protected worker configuration.
-
-Antigravity must not modify:
-
-* source-neutral contracts without approval;
-* Codex-owned orchestration;
-* database migrations;
-* offline parsers;
-* normalization;
-* validation;
-* quality scoring;
-* publication;
-* YPI code.
+Old Gemini-to-Antigravity implementation handoffs are superseded.
 
 ### Codex
 
@@ -179,7 +182,7 @@ Codex must not modify protected acquisition internals.
 
 ## 5. Protected paths
 
-The following paths are owned by Gemini and Antigravity:
+The following paths contain Gemini-authored source-specific acquisition code. Vuk controls their application, commits and merges:
 
 ```text
 src/acquisition/protected/**
@@ -192,7 +195,7 @@ tests/protected_acquisition/**
 
 When one of these paths does not yet exist, its ownership rule still applies.
 
-Codex and ChatGPT must not:
+Codex and ChatGPT must not silently:
 
 * edit;
 * delete;
@@ -202,6 +205,8 @@ Codex and ChatGPT must not:
 * replace;
 * copy its responsibilities elsewhere;
 * recreate its internal behavior in another path.
+
+Codex may edit a protected path only when Vuk explicitly approves a narrow integration correction. Such corrections must not redesign source identity, discovery, acquisition mode, proxy behavior or source-specific error meaning.
 
 Treat the protected acquisition zone as an opaque implementation of the shared contracts.
 

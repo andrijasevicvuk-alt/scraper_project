@@ -18,7 +18,7 @@ versioned dataset batches;
 YPI raw-ingestion export.
 Protected acquisition zone
 
-Gemini and Antigravity own:
+Gemini authors source-specific code for:
 
 src/acquisition/protected/**
 src/acquisition/custom_adapter/**
@@ -31,7 +31,7 @@ Codex must not edit, replace, move, rename or recreate the responsibilities of t
 
 Protected implementations communicate with the rest of the system only through shared contracts.
 
-The protected directories are reserved for Gemini and Antigravity. Codex does not create placeholder files or directories within them: their absence is intentional until their owners add approved implementations.
+The protected directories are reserved for Gemini-authored acquisition code. Gemini returns proposed files or patches; Vuk controls their application and commits. Codex does not create competing implementations in other paths.
 
 Codex-owned source-neutral areas
 
@@ -74,7 +74,7 @@ Live-request boundary
 
 Codex tests use saved fixtures, synthetic HTML or a local test server.
 
-Live source acquisition is performed only through approved Gemini/Antigravity adapters and controlled pilot limits.
+Live source acquisition is performed only through approved Gemini-authored adapters, manually applied and executed under Vuk-approved pilot limits.
 
 Architecture rules
 Raw snapshots are immutable.
