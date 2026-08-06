@@ -106,43 +106,36 @@ ChatGPT must review protected acquisition through its outputs and contracts, not
 
 ### Gemini
 
-Gemini owns source-specific protected acquisition research, design and proposed code.
+Gemini owns source-specific research, acquisition blueprints, experiment plans and source documentation.
 
 Gemini may:
 
 * research approved sources;
-* define discovery strategies;
-* define source identity rules;
-* define list-level observations;
-* define detail-fetch requirements;
+* define discovery and partition strategies;
+* define source identity;
 * select source-specific acquisition modes;
-* define acquisition errors and health signals;
-* produce complete protected adapter code;
-* produce protected acquisition tests;
-* produce fixture-selection plans;
-* produce telemetry and pilot runbooks.
+* evaluate experimental acquisition and interaction tools;
+* define sessions, telemetry, fixtures and pilot limits;
+* prepare an implementation-ready prompt and protected file map for Jules.
 
-Gemini returns code as complete files or patches.
+Gemini does not directly implement or commit protected production code.
 
-Gemini must not:
+### Jules
 
-* commit;
-* push;
-* create or merge pull requests;
-* modify source-neutral orchestration;
-* modify offline parsers;
-* modify YPI canonical mapping;
-* modify final cross-source dedupe;
-* modify final eligibility;
-* modify scoring;
-* modify web application logic;
-* claim tests passed without actual test evidence.
+Jules owns protected source-specific implementation and protected tests.
 
-Vuk controls the application, commit and merge of Gemini-authored code.
+Jules may implement approved work inside:
 
-ChatGPT reviews architecture and boundaries.
+src/acquisition/protected/**
+src/acquisition/custom_adapter/**
+src/acquisition/protected_adapters/**
+docker/protected/**
+config/protected/**
+tests/protected_acquisition/**
 
-Codex may make Vuk-approved minor integration fixes, but must not independently redesign source-specific acquisition behavior.
+Jules implements the approved Gemini blueprint. Jules must not silently redesign the source strategy or replace existing protected work.
+
+Vuk applies, commits and merges accepted Jules files or patches.
 
 ### Antigravity
 
@@ -182,7 +175,7 @@ Codex must not modify protected acquisition internals.
 
 ## 5. Protected paths
 
-The following paths contain Gemini-authored source-specific acquisition code. Vuk controls their application, commits and merges:
+The following paths are reserved for Jules-authored protected implementation based on Vuk-approved Gemini blueprints. Vuk controls their application, commits and merges:
 
 ```text
 src/acquisition/protected/**
@@ -206,7 +199,7 @@ Codex and ChatGPT must not silently:
 * copy its responsibilities elsewhere;
 * recreate its internal behavior in another path.
 
-Codex may edit a protected path only when Vuk explicitly approves a narrow integration correction. Such corrections must not redesign source identity, discovery, acquisition mode, proxy behavior or source-specific error meaning.
+Codex must not directly edit protected paths. Protected defects must be documented and returned as a precise Jules repair prompt. Codex may repair only Codex-owned integration code.
 
 Treat the protected acquisition zone as an opaque implementation of the shared contracts.
 
@@ -518,7 +511,33 @@ Source claims must be labelled:
 * `verified`
 * `deprecated`
 
-## 21. Before declaring a task complete
+## 21. Cross-repository verification
+
+Before every project task, Codex must inspect:
+
+1. the relevant current Scraper Project Second Brain documentation;
+2. the relevant current `scraper_project` files, tests, migrations and repository tree;
+3. the current implementation step;
+4. conflicts between documentation and implementation.
+
+Every Codex response must report:
+
+* Second Brain files checked;
+* technical files checked;
+* current implementation step;
+* architecture alignment;
+* documentation conflicts;
+* implementation defects;
+* strengths;
+* weaknesses;
+* risks;
+* missing evidence;
+* protected-code findings;
+* whether a Jules repair prompt is required.
+
+Codex must not remove or replace a project idea merely because Codex cannot assist with it.
+
+## 22. Before declaring a task complete
 
 Report:
 
@@ -535,7 +554,7 @@ Report:
 
 A task is not complete when tests fail or architecture boundaries are unclear.
 
-## 22. Genesis restrictions
+## 23. Genesis restrictions
 
 Do not begin a Genesis scrape until:
 
@@ -559,7 +578,7 @@ Every discovered listing must finish as:
 
 No discovered listing may disappear from accounting.
 
-## 23. Routine-scrape restrictions
+## 24. Routine-scrape restrictions
 
 The starting routine is:
 
@@ -573,8 +592,8 @@ The starting routine is:
 
 Do not deep-fetch every unchanged listing.
 
-## 24. Final rule
+## 25. Final rule
 
 When repository evidence conflicts with an assumption, stop and report the conflict.
 
-Never silently change the approved Gemini/Antigravity acquisition implementation or another established project decision.
+Never silently change Gemini’s approved acquisition blueprint, Jules’ protected implementation, an experimental project idea or another established project decision.

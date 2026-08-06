@@ -12,6 +12,11 @@ SQLite connections enable WAL mode, foreign keys, full synchronous writes, and a
 
 The queue-owner registration is a database singleton. Once `source_neutral_orchestrator` registers, database triggers reject a second, modified, or deleted registration.
 
+External acquisition and crawler tools must not create a second authoritative queue, retry system, checkpoint store or terminal-state owner.
+
+Crawlee, Scrapling, browser runtimes and protected source adapters may operate only through the existing source-neutral contracts and orchestration boundary.
+
+
 ## Detail job state transitions
 
 ```text

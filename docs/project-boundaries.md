@@ -16,9 +16,14 @@ parser evidence and confidence;
 source-readiness signals;
 versioned dataset batches;
 YPI raw-ingestion export.
+
+3. docs/project-boundaries.md
+Replace the complete Protected acquisition zone section with
 Protected acquisition zone
 
-Gemini authors source-specific code for:
+Gemini owns source-specific research and acquisition blueprints.
+
+Jules owns implementation and tests inside:
 
 src/acquisition/protected/**
 src/acquisition/custom_adapter/**
@@ -27,11 +32,56 @@ docker/protected/**
 config/protected/**
 tests/protected_acquisition/**
 
-Codex must not silently edit, replace, move, rename or recreate the responsibilities of these paths. A narrow integration correction requires Vuk’s explicit approval.
+Vuk applies, commits and merges accepted Jules files or patches.
 
-Protected implementations communicate with the rest of the system only through shared contracts.
+ChatGPT and Codex may inspect, test and review protected implementation. They must not directly edit, replace, rename, move, reformat or recreate its behaviour.
 
-The protected directories are reserved for Gemini-authored acquisition code. Gemini returns proposed files or patches; Vuk controls their application and commits. Codex does not create competing implementations in other paths.
+Protected defects return to Jules through a precise repair prompt.
+
+Experimental tools remain optional until Gemini research, controlled evidence and Vuk approval justify their implementation or promotion.
+Replace the stale foundation-status paragraph with
+Foundation status
+
+Steps 1–2 are complete.
+
+The repository currently provides typed contracts, source-registry configuration, safe logging, a CLI, Docker scaffolding, versioned SQLite migrations, crawl and partition state, one authoritative detail-job queue, bounded retries, checkpoints, snapshot manifests, parser-run state, proxy accounting, dataset manifests, backup and recovery.
+
+It does not yet contain live protected acquisition adapters, source parsers, Genesis execution or routine scraping.
+4. docs/runtime-state.md
+Add after the queue-owner paragraph
+External acquisition or crawler tools must not create a second authoritative queue, retry system, checkpoint store or terminal-state owner.
+
+Crawlee, Scrapling, browser runtimes and protected source adapters may operate only through the approved source-neutral contracts and orchestration boundary.
+5. Create docs/experimental-tools-policy.md
+
+It must contain:
+
+# Experimental Tools Policy
+
+Experimental tools are retained for source-specific research and testing.
+
+Gemini owns research and blueprint decisions.
+Jules owns approved protected implementation.
+ChatGPT and Codex may review and suggest optimizations.
+Vuk approves implementation, rejection, replacement and promotion.
+
+An experimental tool is not implemented merely because it is listed.
+
+An experimental tool is not removed merely because one reviewer cannot assist with it.
+
+Every tool record must include:
+
+- intended source problem;
+- source;
+- current status;
+- maturity;
+- Gemini research result;
+- approved protected paths;
+- Jules implementation version;
+- dependency version;
+- experiment IDs;
+- measured benefits and failures;
+- Vuk decision.
 
 Codex-owned source-neutral areas
 
@@ -87,6 +137,29 @@ No source failure may block another source.
 Alternatives never replace approved components without Vuk’s approval.
 Secrets and runtime data never enter Git.
 
-Foundation status
+## Foundation status
 
-The initial source-neutral foundation provides typed contracts, a local source-registry configuration boundary, safe logging, a placeholder-safe CLI and Docker development scaffold. It does not implement live acquisition, protected adapters, queues, retries, parsers, Genesis, routine scraping, canonical YPI mapping, cross-source deduplication, eligibility or valuation logic.
+Steps 1–2 are complete.
+
+The repository currently includes:
+
+* typed shared contracts;
+* source-registry configuration;
+* safe logging and a local CLI;
+* Docker scaffolding;
+* versioned SQLite migrations;
+* crawl-run and partition state;
+* one authoritative detail-job queue;
+* bounded retries and crash recovery;
+* checkpoints and snapshot manifests;
+* parser-run state;
+* proxy-usage accounting;
+* dataset-batch manifests;
+* database backup and restore support.
+
+The repository does not yet include:
+
+* live protected acquisition adapters;
+* source-specific offline parsers;
+* Genesis execution;
+* routine scraping.
