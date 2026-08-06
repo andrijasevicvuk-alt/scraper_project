@@ -24,14 +24,20 @@ source registry
 → source-readiness validation
 → versioned dataset batch
 → YPI raw ingestion
-Ownership
-Vuk: product owner and merge approval
-ChatGPT: architecture, integration and documentation
-Gemini: source-specific acquisition research, design and proposed code
-Vuk: manually applies, commits and approves Gemini-authored acquisition code
-Codex: source-neutral infrastructure, offline parsers, tests and exports
 
-Gemini-authored acquisition paths are protected. Gemini does not commit directly; Vuk controls application and merging, while ChatGPT and Codex review integration.
+Ownership
+
+Vuk: product owner, approval, application, commit and merge authority
+
+ChatGPT: architecture, system boundaries, review and prompts
+
+Gemini: source-specific research, acquisition blueprints, experiments and source documentation
+
+Jules: protected source-specific implementation and protected tests
+
+Codex: source-neutral infrastructure, authoritative queue, offline parsers, tests, exports and integration review
+
+ChatGPT and Codex may review Jules-authored protected code but must return protected changes as precise Jules repair prompts rather than editing it directly.
 
 Current phase
 
