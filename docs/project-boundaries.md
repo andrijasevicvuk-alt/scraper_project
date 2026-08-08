@@ -4,6 +4,18 @@
 
 `scraper_project` acquires and prepares source-level boat-listing artifacts for YPI. It owns source registry state, crawl state, immutable raw snapshots, acquisition telemetry, offline parser outputs, source-readiness signals, dataset manifests, and controlled YPI raw-ingestion exports.
 
+## In scope
+
+- source registry;
+- crawl runs, partitions, persistent jobs, and checkpoints;
+- protected source-adapter contract boundary;
+- immutable raw snapshot manifests;
+- acquisition telemetry and proxy-usage accounting;
+- offline source parsers, parser evidence, and confidence;
+- source-readiness signals;
+- versioned dataset batches; and
+- YPI raw-ingestion export.
+
 ## Protected acquisition zone
 
 Gemini owns source research, acquisition blueprints, experiments, and source documentation.
@@ -34,6 +46,18 @@ The scraper is not authoritative for canonical builder/model/variant mapping, no
 ## Live-request boundary
 
 Codex uses saved fixtures, synthetic HTML, or a local synthetic server. Jules-authored protected live acquisition, based on Gemini blueprints, runs only under Vuk-approved pilot limits.
+
+## Architecture rules
+
+- Raw snapshots are immutable.
+- Parsers perform no network requests.
+- Unknown values remain unknown.
+- Retries are bounded.
+- One orchestration layer owns retries and checkpoints.
+- Every discovered listing reaches a known terminal state.
+- A failure from one source cannot block another source.
+- Alternatives cannot replace approved components without Vuk approval.
+- Secrets and runtime data never enter Git.
 
 ## Foundation status
 
