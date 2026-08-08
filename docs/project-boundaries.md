@@ -1,165 +1,66 @@
-Project Boundaries
-Purpose
+# Project Boundaries
 
-scraper_project is responsible for acquiring and preparing source-level boat-listing artifacts for YPI.
+## Purpose
 
-In scope
-source registry;
-crawl runs and partitions;
-persistent jobs and checkpoints;
-protected source adapters;
-raw snapshot manifests;
-acquisition telemetry;
-proxy-usage accounting;
-offline source parsers;
-parser evidence and confidence;
-source-readiness signals;
-versioned dataset batches;
-YPI raw-ingestion export.
+`scraper_project` acquires and prepares source-level boat-listing artifacts for YPI. It owns source registry state, crawl state, immutable raw snapshots, acquisition telemetry, offline parser outputs, source-readiness signals, dataset manifests, and controlled YPI raw-ingestion exports.
 
-3. docs/project-boundaries.md
-Replace the complete Protected acquisition zone section with
-Protected acquisition zone
+## In scope
 
-Gemini owns source-specific research and acquisition blueprints.
+- source registry;
+- crawl runs, partitions, persistent jobs, and checkpoints;
+- protected source-adapter contract boundary;
+- immutable raw snapshot manifests;
+- acquisition telemetry and proxy-usage accounting;
+- offline source parsers, parser evidence, and confidence;
+- source-readiness signals;
+- versioned dataset batches; and
+- YPI raw-ingestion export.
 
-Jules owns implementation and tests inside:
+## Protected acquisition zone
 
+Gemini owns source research, acquisition blueprints, experiments, and source documentation.
+
+Jules owns protected source-specific implementation and tests in:
+
+```text
 src/acquisition/protected/**
 src/acquisition/custom_adapter/**
 src/acquisition/protected_adapters/**
 docker/protected/**
 config/protected/**
 tests/protected_acquisition/**
+```
 
-Vuk applies, commits and merges accepted Jules files or patches.
+Vuk applies, commits, and merges accepted protected changes. ChatGPT and Codex may inspect, test, and review protected implementation, but must not directly edit, replace, rename, move, reformat, or recreate it. A protected defect must be returned as a precise Jules repair prompt.
 
-ChatGPT and Codex may inspect, test and review protected implementation. They must not directly edit, replace, rename, move, reformat or recreate its behaviour.
+Experimental acquisition tools remain available for Gemini research and Jules implementation only after Vuk approval. They are not added, removed, or replaced by Codex during source-neutral work.
 
-Protected defects return to Jules through a precise repair prompt.
+## Codex-owned source-neutral areas
 
-Experimental tools remain optional until Gemini research, controlled evidence and Vuk approval justify their implementation or promotion.
-Replace the stale foundation-status paragraph with
-Foundation status
+Codex may work in the source registry, orchestration, database, storage, offline parser, validation, quality, review, publication, monitoring, CLI, tests, Docker scaffold, CI, scripts, and documentation, subject to the shared-contract approval boundary.
 
-Steps 1–2 are complete.
+## YPI-owned responsibilities
 
-The repository currently provides typed contracts, source-registry configuration, safe logging, a CLI, Docker scaffolding, versioned SQLite migrations, crawl and partition state, one authoritative detail-job queue, bounded retries, checkpoints, snapshot manifests, parser-run state, proxy accounting, dataset manifests, backup and recovery.
+The scraper is not authoritative for canonical builder/model/variant mapping, normalized boat or engine records, final ownership classification, cross-source duplicate merging, valuation eligibility, comparable scoring, valuation ranges, or the YPI web application. It exports source-level evidence to YPI raw ingestion only.
 
-It does not yet contain live protected acquisition adapters, source parsers, Genesis execution or routine scraping.
-4. docs/runtime-state.md
-Add after the queue-owner paragraph
-External acquisition or crawler tools must not create a second authoritative queue, retry system, checkpoint store or terminal-state owner.
+## Live-request boundary
 
-Crawlee, Scrapling, browser runtimes and protected source adapters may operate only through the approved source-neutral contracts and orchestration boundary.
-5. Create docs/experimental-tools-policy.md
+Codex uses saved fixtures, synthetic HTML, or a local synthetic server. Jules-authored protected live acquisition, based on Gemini blueprints, runs only under Vuk-approved pilot limits.
 
-It must contain:
+## Architecture rules
 
-# Experimental Tools Policy
-
-Experimental tools are retained for source-specific research and testing.
-
-Gemini owns research and blueprint decisions.
-Jules owns approved protected implementation.
-ChatGPT and Codex may review and suggest optimizations.
-Vuk approves implementation, rejection, replacement and promotion.
-
-An experimental tool is not implemented merely because it is listed.
-
-An experimental tool is not removed merely because one reviewer cannot assist with it.
-
-Every tool record must include:
-
-- intended source problem;
-- source;
-- current status;
-- maturity;
-- Gemini research result;
-- approved protected paths;
-- Jules implementation version;
-- dependency version;
-- experiment IDs;
-- measured benefits and failures;
-- Vuk decision.
-
-Codex-owned source-neutral areas
-
-Codex may work in:
-
-src/contracts/**
-src/source_registry/**
-src/orchestration/**
-src/database/**
-src/storage/**
-src/parsers/**
-src/validators/**
-src/quality/**
-src/review/**
-src/publication/**
-src/monitoring/**
-src/cli/**
-migrations/**
-tests/unit/**
-tests/integration/**
-tests/fixtures/**
-docs/**
-scripts/**
-YPI-owned responsibilities
-
-The scraper project must not become authoritative for:
-
-canonical builder, model or variant mapping;
-normalized boat and engine records;
-final ownership classification;
-cross-source duplicate merging;
-final valuation eligibility;
-comparable scoring;
-valuation range calculations;
-the YPI web application.
-
-The scraper exports source-level evidence into YPI raw ingestion.
-
-Live-request boundary
-
-Codex tests use saved fixtures, synthetic HTML or a local test server.
-
-Live source acquisition is performed only through approved Gemini-authored adapters, manually applied and executed under Vuk-approved pilot limits.
-
-Architecture rules
-Raw snapshots are immutable.
-Parsers perform no network requests.
-Unknown values remain unknown.
-Retries are bounded.
-One orchestration layer owns retries and checkpoints.
-Every discovered listing reaches a known terminal state.
-No source failure may block another source.
-Alternatives never replace approved components without Vuk’s approval.
-Secrets and runtime data never enter Git.
+- Raw snapshots are immutable.
+- Parsers perform no network requests.
+- Unknown values remain unknown.
+- Retries are bounded.
+- One orchestration layer owns retries and checkpoints.
+- Every discovered listing reaches a known terminal state.
+- A failure from one source cannot block another source.
+- Alternatives cannot replace approved components without Vuk approval.
+- Secrets and runtime data never enter Git.
 
 ## Foundation status
 
-Steps 1–2 are complete.
+Steps 1-2 are complete. The repository has typed contracts, source registry configuration, local CLI and logging, Docker scaffolding, versioned SQLite state, authoritative queueing, bounded retries, checkpoints, immutable snapshot manifests, parser-run state, proxy accounting, dataset manifests, and backup/restore support.
 
-The repository currently includes:
-
-* typed shared contracts;
-* source-registry configuration;
-* safe logging and a local CLI;
-* Docker scaffolding;
-* versioned SQLite migrations;
-* crawl-run and partition state;
-* one authoritative detail-job queue;
-* bounded retries and crash recovery;
-* checkpoints and snapshot manifests;
-* parser-run state;
-* proxy-usage accounting;
-* dataset-batch manifests;
-* database backup and restore support.
-
-The repository does not yet include:
-
-* live protected acquisition adapters;
-* source-specific offline parsers;
-* Genesis execution;
-* routine scraping.
+Step 3A adds a source-neutral synthetic worker and isolated Docker validation. It does not add live protected adapters, source parsers, Genesis execution, routine scraping, or YPI business logic.
