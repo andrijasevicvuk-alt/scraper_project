@@ -6,7 +6,9 @@ import argparse
 from datetime import UTC, datetime
 import json
 from pathlib import Path
+import signal
 import sys
+from threading import Event
 from uuid import uuid4
 
 from contracts import ContractValidationError, validate_contract_payload
@@ -14,6 +16,9 @@ from contracts.models import CONTRACT_VERSION, DetailFetchJob, DetailReasonCode,
 from contracts.models import CONTRACT_TYPES
 from database import RuntimeDatabase, RuntimeRepositories
 from orchestration import DetailFetchQueue
+from orchestration.synthetic_worker import SyntheticWorker, SyntheticWorkerError
+from orchestration.runtime import RuntimeSafetyError
+from scraper_logging import configure_logging
 from source_registry.config import SourceRegistryConfigError, load_source_registry
 from storage import backup_database
 
@@ -52,6 +57,46 @@ def _contract_validate(args: argparse.Namespace) -> int:
 
 def _health(_: argparse.Namespace) -> int:
     print("ok: source-neutral foundation; live acquisition is not implemented")
+    return 0
+
+
+def _worker_health(args: argparse.Namespace) -> int:
+    try:
+        result = SyntheticWorker(
+            args.runtime_dir, args.fixture_url, minimum_free_bytes=args.minimum_free_bytes
+        ).health()
+    except (RuntimeSafetyError, ValueError) as exc:
+        print(f"worker health error: {exc}", file=sys.stderr)
+        return 2
+    print(json.dumps(result, sort_keys=True))
+    return 0
+
+
+def _worker_run_synthetic(args: argparse.Namespace) -> int:
+    shutdown_requested = Event()
+
+    def _request_shutdown(_signum: int, _frame: object) -> None:
+        shutdown_requested.set()
+
+    signal.signal(signal.SIGTERM, _request_shutdown)
+    signal.signal(signal.SIGINT, _request_shutdown)
+    try:
+        worker = SyntheticWorker(
+            args.runtime_dir, args.fixture_url, minimum_free_bytes=args.minimum_free_bytes
+        )
+        worker.paths.ensure()
+        configure_logging(structured=True, log_path=worker.paths.logs / "synthetic-worker.jsonl")
+        stop_after = "graceful_shutdown" if shutdown_requested.is_set() else args.stop_after
+        result = worker.run(
+            args.run_id,
+            lease_seconds=args.lease_seconds,
+            stop_after=stop_after,
+            shutdown_requested=shutdown_requested.is_set,
+        )
+    except (RuntimeSafetyError, SyntheticWorkerError, ValueError) as exc:
+        print(f"synthetic worker error: {exc}", file=sys.stderr)
+        return 2
+    print(result.as_json())
     return 0
 
 
@@ -147,6 +192,25 @@ def build_parser() -> argparse.ArgumentParser:
 
     health = commands.add_parser("health", help="report local scaffold health")
     health.set_defaults(handler=_health)
+
+    worker = commands.add_parser("worker", help="run source-neutral local worker checks and synthetic fixtures")
+    worker_commands = worker.add_subparsers(dest="worker_command", required=True)
+    worker_health = worker_commands.add_parser("health", help="verify writable runtime layout and SQLite health")
+    worker_health.add_argument("--runtime-dir", type=Path, default=Path("runtime"))
+    worker_health.add_argument("--fixture-url", default="http://fixture-server:8080/listing.json")
+    worker_health.add_argument("--minimum-free-bytes", type=int, default=1)
+    worker_health.set_defaults(handler=_worker_health)
+
+    synthetic = worker_commands.add_parser("run-synthetic", help="run the local-only resumable Step 3A fixture flow")
+    synthetic.add_argument("--runtime-dir", type=Path, default=Path("runtime"))
+    synthetic.add_argument("--fixture-url", default="http://fixture-server:8080/listing.json")
+    synthetic.add_argument("--run-id", default="synthetic-step3a")
+    synthetic.add_argument("--lease-seconds", type=int, default=30)
+    synthetic.add_argument(
+        "--stop-after", choices=("discovery", "lease", "graceful_shutdown", "snapshot"), default=None
+    )
+    synthetic.add_argument("--minimum-free-bytes", type=int, default=1)
+    synthetic.set_defaults(handler=_worker_run_synthetic)
 
     runtime = commands.add_parser("runtime", help="inspect synthetic local SQLite runtime state")
     runtime_commands = runtime.add_subparsers(dest="runtime_command", required=True)

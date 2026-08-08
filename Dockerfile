@@ -4,7 +4,13 @@ WORKDIR /app
 
 RUN groupadd --system scraper \
     && useradd --system --gid scraper --create-home scraper \
-    && install --directory --owner=scraper --group=scraper /app/runtime
+    && install --directory --owner=scraper --group=scraper \
+        /app/runtime \
+        /app/runtime/database \
+        /app/runtime/checkpoints \
+        /app/runtime/snapshots \
+        /app/runtime/logs \
+        /app/runtime/exports
 
 COPY src ./src
 
@@ -16,4 +22,5 @@ RUN python -c "from database.migrations import migration_directory; assert {path
 
 USER scraper
 
-CMD ["python", "-m", "cli.main", "health"]
+ENTRYPOINT ["python", "-m", "cli.main"]
+CMD ["worker", "health", "--runtime-dir", "/app/runtime"]
