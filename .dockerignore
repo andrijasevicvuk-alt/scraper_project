@@ -4,5 +4,7 @@
 __pycache__
 runtime
 tests
+build
+dist
 *.sqlite
 *.sqlite3

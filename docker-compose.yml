@@ -1,4 +1,21 @@
 services:
+  fixture-server:
+    build: .
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    user: scraper
+    entrypoint: ["python", "-m", "orchestration.fixture_server"]
+    command: ["--host", "0.0.0.0", "--port", "8080"]
+    mem_limit: 128m
+    cpus: 0.25
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; assert urlopen('http://127.0.0.1:8080/health', timeout=2).status == 200"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
   scraper:
     build: .
     init: true
@@ -7,11 +24,15 @@ services:
       - /tmp
     environment:
       PYTHONUNBUFFERED: "1"
+    depends_on:
+      fixture-server:
+        condition: service_healthy
     volumes:
       - scraper-runtime:/app/runtime
-    mem_limit: 256m
-    cpus: 0.50
-    command: ["python", "-m", "cli.main", "health"]
+    mem_limit: 1024m
+    cpus: 1.00
+    stop_grace_period: 20s
+    command: ["worker", "health", "--runtime-dir", "/app/runtime"]
 
 volumes:
   scraper-runtime:

@@ -239,6 +239,13 @@ class SnapshotRepository:
                 ),
             )
 
+    def get(self, artifact_id: str) -> dict[str, Any] | None:
+        with self.database.read_connection() as connection:
+            row = connection.execute(
+                "SELECT * FROM raw_snapshot_manifests WHERE artifact_id=?", (artifact_id,)
+            ).fetchone()
+        return None if row is None else dict(row)
+
 
 class ParserRunRepository:
     def __init__(self, database: RuntimeDatabase) -> None:

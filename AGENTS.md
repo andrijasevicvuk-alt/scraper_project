@@ -368,7 +368,7 @@ Codex tests must use:
 * a local synthetic HTTP server;
 * explicitly authorized mock endpoints.
 
-Gemini-authored live acquisition work remains inside protected paths and Vuk-approved pilot limits.
+Jules-authored protected live acquisition work, based on Gemini-approved blueprints, remains inside protected paths and Vuk-approved pilot limits.
 
 A live pilot or Genesis run requires Vuk’s explicit approval.
 
